@@ -1,24 +1,28 @@
 /* global chrome, app */
 {
-    const { DOUBLE_CLICK_SPEED, getParentElementWithClass, updateBackground, getNextBgInCycle,
-        throttle, removeNewNodeId, getBackground } = app.util;
+    const { DOUBLE_CLICK_SPEED, getParentElementWithClass, updateBackground, throttle, removeNewNodeId,
+        getBackground, triggerBackgroundChange, addToBookmarkHistory } = app.util;
 
     // Start checking if we need to switch backgrounds.
-    setInterval(() => {
-        const lastRotation = localStorage.lastRotation;
+    setInterval(async () => {
         const now = Date.now();
-        if ((now - lastRotation) > app.data.rotateMinutes * 60 * 1000) {
-            const nextBg = getNextBgInCycle(localStorage.lastBgId, app.data.backgrounds, app.data.random);
-            if (nextBg) {
-                updateBackground(nextBg);
-                app.saveData();
-            }
-            localStorage.lastRotation = now;
+        const rotateMs = app.data.rotateMinutes * 60 * 1000;
+        const lastRotation = localStorage.lastRotation;
+        if ((now - lastRotation) > rotateMs) {
+            triggerBackgroundChange();
+            return;
         }
-        if (localStorage.lastBgId !== app.data.background.id) {
-            const newBg = getBackground(localStorage.lastBgId);
-            if (newBg) {
-                updateBackground(newBg);
+        const lastId = localStorage.lastBgId;
+        const lastBgSrc = localStorage.lastBgSrc;
+        const lastBg = getBackground(lastId);
+        const isSubredditRandomizer = (lastBg || {}).type === 'subredditRandomizer';
+        if (lastId !== app.data.background.id || (isSubredditRandomizer && lastBg.image !== lastBgSrc)) {
+            if (isSubredditRandomizer) {
+                lastBg.image = lastBgSrc;
+            }
+            // as tabs race to update their background, (hopefully) the losers end up here.
+            if (lastBg) {
+                updateBackground(lastBg, isSubredditRandomizer);
             }
         }
     }, 3000);
@@ -62,6 +66,28 @@
                 lastTime = 0;
             }
             lastTarget = target;
+        });
+
+        // These mouse down and up handlers are the best way I could think of to keep track
+        // of bookmark clicks to maintain the "bookmark history". Triggering the context
+        // menu will add it no matter if the user navigates or not, but there's no way to know
+        // if they wanted to navigate or not.
+        let mouseDownLinkElement;
+        window.addEventListener('mousedown', e => {
+            const closestLink = e.target.closest('a');
+            if (closestLink) {
+                mouseDownLinkElement = closestLink;
+            } else {
+                mouseDownLinkElement = undefined;
+            }
+        });
+
+        window.addEventListener('mouseup', e => {
+            const closestLink = e.target.closest('a');
+            if (closestLink && mouseDownLinkElement === closestLink) {
+                const title = closestLink.dataset.name || closestLink.parentElement.dataset.name;
+                addToBookmarkHistory({ title, url: closestLink.href });
+            }
         });
     }
 

@@ -48,7 +48,18 @@
                 and click Options).
             </div>
         </div>
+        <h2>Quick Search:</h2>
+        <div>
+            When you open a new browser tab, you can press your keyboard tab key (1-2 times depending on your OS) to
+            activate the quick search feature. This feature lets you type to find the bookmark you are looking for
+            using a few characters. You can use the arrow keys to navigate up and down the list and the enter key
+            to select a bookmark.
+        </div>
         <br>
+        <div>
+            You can also use the spacebar key to open the quick search at any time when you've already clicked in
+            the new brwoser tab.
+        </div>
         <h2>Some Notes on Background Settings:</h2>
         <div>
             Reach background settings by <i>Right Clicking</i> anywhere on the desktop (not on an icon).
@@ -72,6 +83,18 @@
                 <li>Background fitting options (fill, tile, fit, center)</li>
             </ul>
             <div>Just play around with the settings and I'm sure you will get it.</div>
+        </div>
+        <br>
+        <div>
+            <div><b>Subreddit Randomizers</b></div>
+            <br>
+            <div>
+                In "Desktop Properties", you might notice the "Add Subreddit Randomizer" button near the bottom.
+                This feature allows you to specify <a href="https://reddit.com">reddit.com</a> subreddits as an image
+                source for Super Bookmark Desktop to pick from randomly. You can enter multiple subreddits in the same
+                randomizer so that their results are mixed, but you may want to make a separate randomizer for each
+                subreddit so that all subreddits have an equal chance to be used when picking an image.
+            </div>
         </div>
         <h2>Find a bug / Request a feature / Just want to say thanks?</h2>
         <div>

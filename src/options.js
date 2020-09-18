@@ -47,6 +47,12 @@
                         </div>
                     </div>
                     <div class="option">
+                        <div class="optionText">Hide bookmark search button:</div>
+                        <div class="optionUi">
+                            <input type="checkbox" data-id="hideBookmarkSearchButton">
+                        </div>
+                    </div>
+                    <div class="option">
                         <div class="textareaContainer">
                             <div class="label">Custom Styles (CSS):</div>
                             <div>
@@ -60,7 +66,7 @@
                 </div>
                 <div class="tabPage" data-id="aboutPage">
                     <div class="updateMessage" data-id="updateMessage">Super Bookmark Desktop was updated! See what changed below.</div>
-                    <h3>Super Bookmark Desktop v<span data-id="version"></span></h3>
+                    <h3 class="extensionName">Super Bookmark Desktop v<span data-id="version"></span></h3>
                     <div>&copy; Kyle Paulsen (2017-${(new Date()).getFullYear()})</div>
                     <div><a href="https://github.com/kylepaulsen/SuperBookmarkDesktop">Open Source on Github</a></div><br>
                     <div>
@@ -76,7 +82,30 @@
                         </form>
                     </div>
                     <div>
-                        <h3>Changelog</h3>
+                        <h3 class="changelogTitle">Changelog</h3>
+                        <div class="changelogEntry featured">
+                            <b>v1.4.0</b>
+                            <ul>
+                                <li>
+                                    <div>Features</div>
+                                    <ul>
+                                        <li><b>Bookmark Quick Search!</b> Press the tab key from the browser's url box when the tab first opens or press the spacebar any other time to open a bookmark search.</li>
+                                        <li>Added an option to remove the search button from the top of the page.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="changelogEntry">
+                            <b>v1.3.0</b>
+                            <ul>
+                                <li>
+                                    <div>Features</div>
+                                    <ul>
+                                        <li><b>Random Subreddit Backgrounds!</b> Right click somewhere on the desktop and click "Desktop Properties" to add one!</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
                         <div class="changelogEntry">
                             <b>v1.2.1</b>
                             <ul>
@@ -283,6 +312,12 @@
             localStorage.useDoubleClicks = '';
         }
 
+        if (ui.hideBookmarkSearchButton.checked) {
+            localStorage.hideBookmarkSearchButton = '1';
+        } else {
+            localStorage.hideBookmarkSearchButton = '';
+        }
+
         localStorage.userStyles = ui.customCss.value;
         chrome.runtime.sendMessage({action: 'reloadOptions'});
     };
@@ -295,10 +330,10 @@
 
         if (localStorage.windowCloseRight) {
             ui.windowCloseRight.checked = true;
-            applyStylesheet('.title-bar{flex-direction: row-reverse;}', 'windowCloseRight');
+            applyStylesheet('.title-bar{flex-direction: row-reverse;}', 'windowCloseRightStyle');
         } else {
             ui.windowCloseRight.checked = false;
-            applyStylesheet('.title-bar{flex-direction: row;}', 'windowCloseRight');
+            applyStylesheet('.title-bar{flex-direction: row;}', 'windowCloseRightStyle');
         }
 
         ui.hideBookmarksBarBookmarks.checked = false;
@@ -309,6 +344,17 @@
         ui.useDoubleClicks.checked = false;
         if (localStorage.useDoubleClicks === '1') {
             ui.useDoubleClicks.checked = true;
+        }
+
+        if (localStorage.hideBookmarkSearchButton === '1') {
+            ui.hideBookmarkSearchButton.checked = true;
+            applyStylesheet('.quickSearchButton{display: none;}', 'bmSearchButtonStyle');
+        } else {
+            ui.hideBookmarkSearchButton.checked = false;
+            applyStylesheet('.quickSearchButton{display: block;}', 'bmSearchButtonStyle');
+            if (app.updateQuickSearchButton) {
+                app.updateQuickSearchButton();
+            }
         }
 
         const defaultCustomCss = '/*' + customCssPlaceholder.replace('/*', '').replace('*/', '') + '\n*/';
@@ -382,6 +428,11 @@
     });
 
     ui.useDoubleClicks.addEventListener('change', () => {
+        save();
+        load();
+    });
+
+    ui.hideBookmarkSearchButton.addEventListener('change', () => {
         save();
         load();
     });
